@@ -11,11 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
 
-class Adapter(
-    var mainList: MutableList<News>,
-    var fragmentButtonListener: FragmentButtonListener?,
-    var fragmentLikeListener: FragmentLikeListener?
-) : RecyclerView.Adapter<Adapter.NewsViewHolder>() {
+class SavesAdapter(
+    var mainList: List<News>,
+    var fragmentLikeListener: FragmentLikeListener
+) : RecyclerView.Adapter<SavesAdapter.NewsViewHolder>() {
 
     inner class NewsViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         fun bind(news: News) {
@@ -35,11 +34,7 @@ class Adapter(
                 postText.text = Html.fromHtml(s)
                 date.text = news.date
                 likesCnt.text = news.likesCnt.toString() + " likes"
-                if (news.isLiked){
-                    Glide.with(view.context).load(R.drawable.liked).into(likeBtn)
-                } else {
-                    Glide.with(view.context).load(R.drawable.like).into(likeBtn)
-                }
+                Glide.with(view.context).load(R.drawable.liked).into(likeBtn)
             }
             view.setOnClickListener {
                 val intent = Intent(view.context, NewsDetailActivity::class.java)
@@ -47,24 +42,14 @@ class Adapter(
                 view.context.startActivity(intent)
             }
 
+
             likeBtn.setOnClickListener {
-                if (fragmentButtonListener != null) {
-                    if (news.isLiked) {
-                        Glide.with(view.context).load(R.drawable.like).into(likeBtn)
-                        fragmentLikeListener?.removeItemLike(news)
-                        news.isLiked = false
-                    } else {
-                        Glide.with(view.context).load(R.drawable.liked).into(likeBtn)
-                        fragmentButtonListener?.myClick(news, 1)
-                        news.isLiked = true
-                    }
+                if (fragmentLikeListener != null) {
+                    fragmentLikeListener.removeItemLike(news)
                 }
             }
-        }
-    }
 
-    interface FragmentButtonListener {
-        fun myClick(news: News, option: Int)
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -75,7 +60,6 @@ class Adapter(
         fun removeItemLike(news: News)
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
         val view: View = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_news, parent, false)
@@ -84,16 +68,8 @@ class Adapter(
 
     override fun getItemCount(): Int = mainList.size
 
-    override fun onBindViewHolder(holder: Adapter.NewsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         holder.bind(mainList[position])
-    }
-
-    fun removeLike(news: News) {
-        var n = mainList.indexOf(news)
-        news.isLiked = false
-        news.likeBtn = R.drawable.like
-        mainList[n] = news
-        notifyItemChanged(n)
     }
 
 }

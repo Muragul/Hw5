@@ -11,13 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SavesFragment : Fragment() {
+class SavesFragment(private var fragmentLikeListener: SavesAdapter.FragmentLikeListener) : Fragment() {
 
     lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: Adapter
-    private var newsList: List<News> = ArrayList()
-    private var fragmentLikeListener: Adapter.FragmentLikeListener? = null
-    private var fragmentButtonListener: Adapter.FragmentButtonListener? = null
+    private lateinit var adapter: SavesAdapter
+    private var newsList: MutableList<News> = ArrayList()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,19 +26,30 @@ class SavesFragment : Fragment() {
             .inflate(R.layout.page, container, false) as ViewGroup
         recyclerView = rootView.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(activity)
-
-        fragmentLikeListener = object : Adapter.FragmentLikeListener {
-            override fun removeItemLike(news: News) {
-                (activity as MainActivity?)!!.removeItemLike(news!!)
-            }
-        }
-        newsList = ArrayList<News>()
-        adapter = Adapter(
+        newsList = ArrayList()
+        adapter = SavesAdapter(
             newsList,
-            fragmentLikeListener as Adapter.FragmentLikeListener,
-            fragmentButtonListener as Adapter.FragmentButtonListener
+            fragmentLikeListener
         )
-        recyclerView.setAdapter(adapter)
+        recyclerView.adapter = adapter
         return rootView
+    }
+
+    fun addNews(news: News){
+        this.newsList.add(news)
+        adapter.notifyDataSetChanged()
+    }
+    fun removeNews(news: News){
+        if (newsList.indexOf(news)==0){
+            newsList.remove(news)
+        } else {
+            var n = newsList.indexOf(news)
+            this.newsList.remove(news)
+            adapter.notifyItemRemoved(n)
+        }
+    }
+    fun removeLike(news: News){
+        newsList.remove(news)
+        adapter.notifyDataSetChanged()
     }
 }

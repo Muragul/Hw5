@@ -6,11 +6,12 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.PagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity(), Adapter.FragmentLikeListener, Adapter.FragmentButtonListener{
+class MainActivity : AppCompatActivity(), SavesAdapter.FragmentLikeListener,
+    Adapter.FragmentButtonListener, Adapter.FragmentLikeListener{
     private lateinit var pager: LockableViewPager
     private lateinit var pagerAdapter: PagerAdapter
-    private var f1: Fragment = NewsFragment()
-    private var f2: Fragment = NewsFragment()
+    private var f1: Fragment = NewsFragment(this, this)
+    private var f2: Fragment = SavesFragment(this)
     private var list: MutableList<Fragment> = ArrayList()
     lateinit var bottomNavigationView: BottomNavigationView
 
@@ -18,6 +19,7 @@ class MainActivity : AppCompatActivity(), Adapter.FragmentLikeListener, Adapter.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
 
         bottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -46,9 +48,17 @@ class MainActivity : AppCompatActivity(), Adapter.FragmentLikeListener, Adapter.
     }
 
     override fun myClick(news: News, option: Int) {
+        if (option==1){
+            (f2 as SavesFragment).addNews(news)
+        } else {
+            (f2 as SavesFragment).removeNews(news)
+        }
+
     }
 
     override fun removeItemLike(news: News) {
+        (f1 as NewsFragment).removeLike(news)
+        (f2 as SavesFragment).removeLike(news)
     }
 
 }

@@ -9,12 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class NewsFragment : Fragment() {
-    lateinit var recyclerView: RecyclerView
+class NewsFragment(private var fragmentButtonListener: Adapter.FragmentButtonListener?,
+var fragmentLikeListener: Adapter.FragmentLikeListener?) : Fragment() {
+    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: Adapter
-    private var fragmentButtonListener: Adapter.FragmentButtonListener? = null
-    private var fragmentLikeListener: Adapter.FragmentLikeListener? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,28 +24,13 @@ class NewsFragment : Fragment() {
         recyclerView = rootView.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        fragmentButtonListener = object : Adapter.FragmentButtonListener {
-            override fun myClick(news: News, option: Int) {
-                (activity as MainActivity?)!!.myClick(news!!, option)
-            }
-        }
-        fragmentLikeListener = object : Adapter.FragmentLikeListener {
-            override fun removeItemLike(news: News) {
-                (activity as MainActivity?)!!.removeItemLike(news!!)
-
-            }
-        }
-        adapter = Adapter(
-            newsGenerator(),
-            fragmentLikeListener as Adapter.FragmentLikeListener,
-            fragmentButtonListener as Adapter.FragmentButtonListener
-        )
+        adapter = Adapter(newsGenerator(), fragmentButtonListener, fragmentLikeListener)
         recyclerView.adapter = adapter
         adapter.notifyDataSetChanged()
         return rootView
     }
 
-    private fun newsGenerator(): List<News> {
+    private fun newsGenerator(): MutableList<News> {
         val items: MutableList<News> = ArrayList()
         val news1 = News(
             1,
@@ -368,7 +351,7 @@ class NewsFragment : Fragment() {
         return items
     }
 
-    public fun removeLike(news: News){
+    fun removeLike(news: News){
         adapter.removeLike(news)
     }
 
